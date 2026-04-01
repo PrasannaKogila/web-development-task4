@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Portfolio</title>
+
+<style>
+body {
+    font-family: Arial;
+    margin:0;
+    background:white;
+    color:black;
+}
+
+/* DARK MODE */
+.dark {
+    background:black;
+    color:white;
+}
+.dark nav {
+    background:white;
+}
+.dark nav a {
+    color:black;
+}
+.dark button {
+    background:white;
+    color:black;
+}
+
+/* NAVBAR */
+nav {
+    background:black;
+    color:white;
+    padding:15px;
+    text-align:center;
+    position:relative;
+}
+
+nav a {
+    color:white;
+    margin:15px;
+    cursor:pointer;
+    text-decoration:none;
+}
+
+/* DARK ICON */
+.dark-toggle {
+    position:absolute;
+    right:20px;
+    top:15px;
+    cursor:pointer;
+}
+
+/* SECTION */
+section {
+    padding:60px 20px;
+    max-width:900px;
+    margin:auto;
+}
+
+/* INPUT */
+input, select, textarea {
+    width:100%;
+    padding:8px;
+    margin:8px 0;
+}
+
+/* BUTTON */
+button {
+    background:black;
+    color:white;
+    border:none;
+    padding:8px 12px;
+    cursor:pointer;
+}
+
+/* PROJECT */
+.project {
+    margin:25px 0;
+    cursor:pointer;
+}
+.project:hover {
+    text-decoration:underline;
+}
+
+/* TODO */
+.completed {
+    text-decoration:line-through;
+}
+li {
+    display:flex;
+    justify-content:space-between;
+    margin:5px 0;
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav>
+<a onclick="show('about')">About</a>
+<a onclick="show('projects')">Projects</a>
+<a onclick="show('contact')">Contact</a>
+
+<!-- DARK MODE ICON -->
+<span class="dark-toggle" onclick="toggleDark()">🌙</span>
+</nav>
+
+<!-- ABOUT -->
+<section id="about">
+<h1>About Me</h1>
+
+<p>
+I am a dedicated and passionate student with a keen interest in front-end web development. 
+I have hands-on experience in building responsive and interactive web applications using HTML, CSS, and JavaScript.
+</p>
+
+<p>
+I have developed projects such as a personal portfolio website, a to-do list application with local storage, and a product filtering system. 
+These projects helped me strengthen my understanding of DOM manipulation, data handling, and user interface design.
+</p>
+
+<p>
+I possess strong problem-solving skills, adaptability, and a continuous learning mindset. 
+I am seeking opportunities to enhance my technical skills and contribute effectively to the growth of an organization.
+</p>
+
+</section>
+
+<!-- PROJECTS -->
+<section id="projects" style="display:none;">
+<h1>Projects</h1>
+
+<input type="text" id="search" placeholder="Search projects..." onkeyup="searchProjects()">
+
+<select id="filter" onchange="filterProjects()">
+<option value="all">All</option>
+<option value="web">Web</option>
+<option value="js">JavaScript</option>
+</select>
+
+<select onchange="sortProjects()">
+<option value="az">A-Z</option>
+<option value="za">Z-A</option>
+</select>
+
+<div id="projectList"></div>
+
+<h2>Professional To-Do List</h2>
+
+<input id="task" placeholder="Task">
+<select id="priority">
+<option>High</option>
+<option>Medium</option>
+<option>Low</option>
+</select>
+
+<input type="date" id="date">
+
+<button onclick="addTask()">Add</button>
+
+<input placeholder="Search task..." onkeyup="searchTask(this.value)">
+
+<select onchange="filterTask(this.value)">
+<option value="all">All</option>
+<option value="completed">Completed</option>
+<option value="pending">Pending</option>
+</select>
+
+<p id="count"></p>
+<ul id="list"></ul>
+
+</section>
+
+<!-- PROJECT DETAILS -->
+<section id="detailsPage" style="display:none;">
+<button onclick="show('projects')">← Back</button>
+<div id="details"></div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" style="display:none;">
+<h1>Contact</h1>
+
+<p>Email: your@email.com</p>
+<p>Location: Andhra Pradesh</p>
+
+<input placeholder="Name" id="name">
+<input placeholder="Email" id="email">
+<textarea placeholder="Message" id="msg"></textarea>
+
+<button onclick="send()">Send</button>
+
+</section>
+
+<script>
+
+/* NAVIGATION */
+function show(id){
+document.querySelectorAll("section").forEach(s=>s.style.display="none");
+document.getElementById(id).style.display="block";
+}
+
+/* DARK MODE */
+function toggleDark(){
+document.body.classList.toggle("dark");
+}
+
+/* PROJECT DATA */
+let projects = [
+{
+name:"Project 1: Personal Portfolio Website",
+cat:"web",
+desc:"A responsive website designed to showcase skills and projects.",
+features:["Responsive design","Smooth navigation","Minimal UI"],
+tech:"HTML, CSS, JavaScript"
+},
+{
+name:"Project 2: Professional To-Do List",
+cat:"js",
+desc:"A task manager with search, filter and local storage.",
+features:["Add/Delete","Search","Filter","LocalStorage"],
+tech:"HTML, CSS, JavaScript"
+},
+{
+name:"Project 3: Product Filtering System",
+cat:"js",
+desc:"Filter and sort products dynamically.",
+features:["Filter","Sort","Dynamic UI"],
+tech:"HTML, CSS, JavaScript"
+},
+{
+name:"Project 4: Calculator Application",
+cat:"js",
+desc:"Performs arithmetic operations.",
+features:["Addition","Subtraction","Multiplication","Division"],
+tech:"HTML, CSS, JavaScript"
+},
+{
+name:"Project 5: Login & Registration Form",
+cat:"web",
+desc:"User authentication with validation.",
+features:["Validation","Responsive UI"],
+tech:"HTML, CSS, JavaScript"
+}
+];
+
+let current = [...projects];
+
+/* DISPLAY */
+function display(data){
+let c=document.getElementById("projectList");
+c.innerHTML="";
+
+data.forEach((p,i)=>{
+c.innerHTML+=`
+<div class="project" onclick="openProject(${i})">
+<b>${p.name}</b>
+<p>${p.desc}</p>
+</div>`;
+});
+}
+
+/* SEARCH */
+function searchProjects(){
+let t=document.getElementById("search").value.toLowerCase();
+display(current.filter(p=>p.name.toLowerCase().includes(t)));
+}
+
+/* FILTER */
+function filterProjects(){
+let v=document.getElementById("filter").value;
+current=projects.filter(p=>v==="all"||p.cat===v);
+display(current);
+}
+
+/* SORT */
+function sortProjects(){
+let v=event.target.value;
+current.sort((a,b)=>v==="az"?a.name.localeCompare(b.name):b.name.localeCompare(a.name));
+display(current);
+}
+
+/* DETAILS PAGE */
+function openProject(index){
+let p=current[index];
+
+document.getElementById("details").innerHTML=`
+<h2>${p.name}</h2>
+<p>${p.desc}</p>
+
+<h3>Features:</h3>
+<ul>${p.features.map(f=>`<li>${f}</li>`).join("")}</ul>
+
+<h3>Technologies:</h3>
+<p>${p.tech}</p>
+`;
+
+show("detailsPage");
+}
+
+display(projects);
+
+/* TODO */
+let tasks=JSON.parse(localStorage.getItem("tasks"))||[];
+
+function save(){localStorage.setItem("tasks",JSON.stringify(tasks));}
+
+function addTask(){
+let t=task.value;
+if(t==="") return;
+tasks.push({t,done:false});
+save();
+showTasks(tasks);
+task.value="";
+}
+
+function showTasks(data){
+let l=document.getElementById("list");
+l.innerHTML="";
+let c=0;
+
+data.forEach((x,i)=>{
+if(x.done)c++;
+l.innerHTML+=`<li onclick="toggle(${i})">
+<span class="${x.done?'completed':''}">${x.t}</span>
+<button onclick="del(event,${i})">X</button></li>`;
+});
+
+count.innerText=`Total:${tasks.length} Completed:${c}`;
+}
+
+function toggle(i){
+tasks[i].done=!tasks[i].done;
+save();
+showTasks(tasks);
+}
+
+function del(e,i){
+e.stopPropagation();
+tasks.splice(i,1);
+save();
+showTasks(tasks);
+}
+
+function searchTask(v){
+showTasks(tasks.filter(x=>x.t.toLowerCase().includes(v.toLowerCase())));
+}
+
+function filterTask(v){
+showTasks(tasks.filter(x=>v==="all"||(v==="completed"?x.done:!x.done)));
+}
+
+showTasks(tasks);
+
+/* CONTACT */
+function send(){
+if(name.value===""||email.value===""||msg.value===""){
+alert("Fill all fields");
+return;
+}
+alert("Message Sent!");
+}
+
+</script>
+
+</body>
+</html>
